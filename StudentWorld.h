@@ -6,6 +6,8 @@
 #include "Actor.h"
 #include <string>
 #include <vector>
+#include <sstream>
+#include <iomanip>
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
@@ -22,6 +24,7 @@ public:
     void playSound(int soundId);
 
 private:
+    void setDisplayText();  // helper function to set the game stats display
     std::vector<Actor*> m_actors;  // container for all actors (Floor, Player, etc.)
     Player* m_player;  
     Level m_level;     

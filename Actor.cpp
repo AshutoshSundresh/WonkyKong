@@ -101,7 +101,11 @@ void Player::handleKeyPress() {
             break;
             
         case KEY_PRESS_DOWN:
-            if (getWorld()->isOnLadder(getX(), getY()) && 
+            // Allow moving down if either:
+            // 1. Player is currently on a ladder, or
+            // 2. There is a ladder right below the player
+            if ((getWorld()->isOnLadder(getX(), getY()) || 
+                 getWorld()->isOnLadder(getX(), getY() - 1)) && 
                 !getWorld()->isBlockedByFloor(getX(), getY() - 1))
                 moveTo(getX(), getY() - 1);
             break;

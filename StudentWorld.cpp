@@ -1,6 +1,8 @@
 #include "StudentWorld.h"
 #include "GameConstants.h"
 #include <string>
+#include <sstream> // added for ostringstream
+#include <iomanip> // added for setw and setfill
 using namespace std;
 
 GameWorld* createStudentWorld(string assetPath)
@@ -60,6 +62,9 @@ int StudentWorld::move()
             actor->doSomething();
     }
     
+    // Update display text
+    setDisplayText();
+    
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -97,4 +102,21 @@ bool StudentWorld::isOnLadder(int x, int y) const {
 
 void StudentWorld::playSound(int soundId) {
     GameWorld::playSound(soundId);
+}
+
+void StudentWorld::setDisplayText()
+{
+    int score = getScore();  // from GameWorld
+    int level = getLevel();  // from GameWorld
+    int lives = getLives();  // from GameWorld
+    unsigned int burps = 0;  // TODO: implement burp tracking
+    
+    // Format: Score: 0000100 Level: 03 Lives: 03 Burps: 08
+    ostringstream oss;
+    oss << "Score: " << setw(7) << setfill('0') << score;
+    oss << "  Level: " << setw(2) << setfill('0') << level;
+    oss << "  Lives: " << setw(2) << setfill('0') << lives;
+    oss << "  Burps: " << setw(2) << setfill('0') << burps;
+    
+    setGameStatText(oss.str());
 }
