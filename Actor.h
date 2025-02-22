@@ -10,7 +10,7 @@ class StudentWorld;  // forward declaration
 
 class Actor : public GraphObject {
 public:
-    Actor(StudentWorld* world, int imageID, int startX, int startY, int dir = 0, double size = 1.0)
+    Actor(StudentWorld* world, int imageID, int startX, int startY, int dir = none, double size = 1.0)
         : GraphObject(imageID, startX, startY, dir, size), m_world(world) {}
     
     virtual void doSomething() = 0;  // pure virtual
@@ -27,7 +27,7 @@ private:
 class Floor : public Actor {
 public:
     Floor(StudentWorld* world, int startX, int startY)
-        : Actor(world, IID_FLOOR, startX, startY) {}
+        : Actor(world, IID_FLOOR, startX, startY, none) {}  // no direction
     
     virtual void doSomething() override {}  // floor doesn't do anything each tick
 };

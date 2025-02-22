@@ -40,7 +40,6 @@ int StudentWorld::init()
                 case Level::floor:
                     m_actors.push_back(new Floor(this, x, y));
                     break;
-                // Ignore other items for Part #1
                 default:
                     break;
             }
@@ -52,7 +51,7 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-    // Ask each actor (including player) to do something
+    // ask each actor (including player) to do something
     for (Actor* actor : m_actors) {
         if (actor != nullptr)
             actor->doSomething();
@@ -63,10 +62,21 @@ int StudentWorld::move()
 
 void StudentWorld::cleanUp()
 {
-    // Delete all actors
+    // delete all actors
     for (Actor* actor : m_actors) {
         delete actor;
     }
     m_actors.clear();
-    m_player = nullptr;  // Player is already deleted as part of m_actors
+    m_player = nullptr;  
+}
+
+bool StudentWorld::isBlockedByFloor(int x, int y) const {
+    // check each actor to see if there's a floor at the specified position
+    for (Actor* actor : m_actors) {
+        if (actor != nullptr && dynamic_cast<Floor*>(actor) != nullptr) {
+            if (actor->getX() == x && actor->getY() == y)
+                return true;
+        }
+    }
+    return false;
 }

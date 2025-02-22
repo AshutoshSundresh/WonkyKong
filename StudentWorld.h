@@ -16,6 +16,8 @@ public:
     virtual int init();
     virtual int move();
     virtual void cleanUp();
+    
+    bool isBlockedByFloor(int x, int y) const;
 
 private:
     std::vector<Actor*> m_actors;  // container for all actors (Floor, Player, etc.)
