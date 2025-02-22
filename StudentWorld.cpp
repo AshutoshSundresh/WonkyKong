@@ -11,24 +11,62 @@ GameWorld* createStudentWorld(string assetPath)
 // Students:  Add code to this file, StudentWorld.h, Actor.h, and Actor.cpp
 
 StudentWorld::StudentWorld(string assetPath)
-: GameWorld(assetPath)
+: GameWorld(assetPath), m_player(nullptr), m_level(assetPath)
 {
+}
+
+StudentWorld::~StudentWorld() {
+    cleanUp();
 }
 
 int StudentWorld::init()
 {
+    // load the current level
+    string levelFile = "level00.txt";
+    Level::LoadResult result = m_level.loadLevel(levelFile);
+    if (result != Level::load_success)
+        return GWSTATUS_LEVEL_ERROR;
+    
+    // iterate through the level grid and create actors
+    for (int x = 0; x < VIEW_WIDTH; x++) {
+        for (int y = 0; y < VIEW_HEIGHT; y++) {
+            Level::MazeEntry item = m_level.getContentsOf(x, y);
+            
+            switch (item) {
+                case Level::player:
+                    m_player = new Player(this, x, y);
+                    m_actors.push_back(m_player);
+                    break;
+                case Level::floor:
+                    m_actors.push_back(new Floor(this, x, y));
+                    break;
+                // Ignore other items for Part #1
+                default:
+                    break;
+            }
+        }
+    }
+    
     return GWSTATUS_CONTINUE_GAME;
 }
 
 int StudentWorld::move()
 {
-    // This code is here merely to allow the game to build, run, and terminate after you type q
-
-    setGameStatText("Game will end when you type q");
+    // Ask each actor (including player) to do something
+    for (Actor* actor : m_actors) {
+        if (actor != nullptr)
+            actor->doSomething();
+    }
     
     return GWSTATUS_CONTINUE_GAME;
 }
 
 void StudentWorld::cleanUp()
 {
+    // Delete all actors
+    for (Actor* actor : m_actors) {
+        delete actor;
+    }
+    m_actors.clear();
+    m_player = nullptr;  // Player is already deleted as part of m_actors
 }

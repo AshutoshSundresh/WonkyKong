@@ -1,7 +1,4 @@
 ﻿  Actor.cpp
-  GameController.cpp
-  GameWorld.cpp
-  main.cpp
   StudentWorld.cpp
   Generating Code...
   WonkyKong.vcxproj -> C:\Users\Umadevi Sunderesh\Downloads\WonkyKong-skeleton-win\WonkyKong\Debug\WonkyKong.exe
