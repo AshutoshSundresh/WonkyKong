@@ -43,15 +43,14 @@ public:
 class Player : public Actor {
 public:
     Player(StudentWorld* world, int startX, int startY)
-        : Actor(world, IID_PLAYER, startX, startY, right), m_lives(3), m_isAlive(true), 
+        : Actor(world, IID_PLAYER, startX, startY, right), m_isAlive(true), 
           m_isJumping(false), m_jumpStep(0), m_burpCount(0) {}
     
     virtual void doSomething() override;
     
     bool isAlive() const { return m_isAlive; }
     void setDead() { m_isAlive = false; }
-    int getLives() const { return m_lives; }
-    void decrementLives() { m_lives--; }
+    virtual void attack() override;
     
     int getBurpCount() const { return m_burpCount; }
     void setBurpCount(int count) { m_burpCount = count; }
@@ -59,7 +58,6 @@ public:
     void addBurp() { m_burpCount++; }
     
 private:
-    int m_lives;
     bool m_isAlive;
     bool m_isJumping;
     int m_jumpStep;
@@ -94,14 +92,39 @@ private:
     int m_lifetime;
 };
 
+class Goodie : public Actor {
+public:
+    Goodie(StudentWorld* world, int imageID, int startX, int startY)
+        : Actor(world, imageID, startX, startY, none) {}
+    
+    virtual void doSomething() override final;  
+    virtual void attack() override {} // goodies can't be attacked
+    
+protected:
+    virtual int getScoreIncrease() const = 0;
+    virtual void doGoodieSpecificAction() = 0;
+};
+
 // represents a garlic goodie that gives the player burps
-class GarlicGoodie : public Actor {
+class GarlicGoodie : public Goodie {
 public:
     GarlicGoodie(StudentWorld* world, int startX, int startY)
-        : Actor(world, IID_GARLIC_GOODIE, startX, startY, none) {}
+        : Goodie(world, IID_GARLIC_GOODIE, startX, startY) {}
     
-    virtual void doSomething() override;
-    virtual void attack() override {} // Garlic goodie can't be attacked
+protected:
+    virtual int getScoreIncrease() const override { return 25; }
+    virtual void doGoodieSpecificAction() override;
+};
+
+// represents an extra life goodie that gives the player an extra life
+class ExtraLifeGoodie : public Goodie {
+public:
+    ExtraLifeGoodie(StudentWorld* world, int startX, int startY)
+        : Goodie(world, IID_EXTRA_LIFE_GOODIE, startX, startY) {}
+    
+protected:
+    virtual int getScoreIncrease() const override { return 50; }
+    virtual void doGoodieSpecificAction() override;
 };
 
 #endif // ACTOR_H_

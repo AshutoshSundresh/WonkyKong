@@ -142,6 +142,11 @@ void Player::handleBurp() {
     decrementBurpCount();
 }
 
+void Player::attack() {
+    getWorld()->decLives();
+    setDead();
+}
+
 void Burp::doSomething() {
     // Check if alive
     if (!isAlive())
@@ -158,16 +163,24 @@ void Burp::doSomething() {
     getWorld()->attackActorsAt(getX(), getY());
 }
 
-void GarlicGoodie::doSomething() {
+void Goodie::doSomething() {
     // check if alive
     if (!isAlive())
         return;
         
     // check if player is on same square
     if (getWorld()->isPlayerAt(getX(), getY())) {
-        getWorld()->increaseScore(25);
+        getWorld()->increaseScore(getScoreIncrease());
         getWorld()->playSound(SOUND_GOT_GOODIE);
-        getWorld()->getPlayer()->setBurpCount(getWorld()->getPlayer()->getBurpCount() + 5);
+        doGoodieSpecificAction();
         setDead();
     }
+}
+
+void GarlicGoodie::doGoodieSpecificAction() {
+    getWorld()->getPlayer()->setBurpCount(getWorld()->getPlayer()->getBurpCount() + 5);
+}
+
+void ExtraLifeGoodie::doGoodieSpecificAction() {
+    getWorld()->incLives();
 }

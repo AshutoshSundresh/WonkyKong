@@ -48,6 +48,9 @@ int StudentWorld::init()
                 case Level::garlic:
                     m_actors.push_back(new GarlicGoodie(this, x, y));
                     break;
+                case Level::extra_life:
+                    m_actors.push_back(new ExtraLifeGoodie(this, x, y));
+                    break;
                 default:
                     break;
             }
