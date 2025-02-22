@@ -36,9 +36,35 @@ public:
 class Player : public Actor {
 public:
     Player(StudentWorld* world, int startX, int startY)
-        : Actor(world, IID_PLAYER, startX, startY) {}
+        : Actor(world, IID_PLAYER, startX, startY, right), m_lives(3), m_isAlive(true), 
+          m_isJumping(false), m_jumpStep(0) {}
     
-    virtual void doSomething() override; 
+    virtual void doSomething() override;
+    
+    bool isAlive() const { return m_isAlive; }
+    void setDead() { m_isAlive = false; }
+    int getLives() const { return m_lives; }
+    void decrementLives() { m_lives--; }
+    
+private:
+    int m_lives;
+    bool m_isAlive;
+    bool m_isJumping;
+    int m_jumpStep;
+    
+    void executeJumpStep();
+    bool canInitiateJump() const;
+    void handleKeyPress();
+    void handleFalling();
+};
+
+// represents a ladder that the player can climb
+class Ladder : public Actor {
+public:
+    Ladder(StudentWorld* world, int startX, int startY)
+        : Actor(world, IID_LADDER, startX, startY, none) {}
+    
+    virtual void doSomething() override {}  // ladder is static, doesn't do anything each tick
 };
 
 #endif // ACTOR_H_

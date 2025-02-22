@@ -18,6 +18,8 @@ public:
     virtual void cleanUp();
     
     bool isBlockedByFloor(int x, int y) const;
+    bool isOnLadder(int x, int y) const;  // returns true if there is a ladder at (x,y)
+    void playSound(int soundId);
 
 private:
     std::vector<Actor*> m_actors;  // container for all actors (Floor, Player, etc.)

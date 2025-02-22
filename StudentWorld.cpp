@@ -40,6 +40,9 @@ int StudentWorld::init()
                 case Level::floor:
                     m_actors.push_back(new Floor(this, x, y));
                     break;
+                case Level::ladder:
+                    m_actors.push_back(new Ladder(this, x, y));
+                    break;
                 default:
                     break;
             }
@@ -79,4 +82,19 @@ bool StudentWorld::isBlockedByFloor(int x, int y) const {
         }
     }
     return false;
+}
+
+bool StudentWorld::isOnLadder(int x, int y) const {
+    // check each actor to see if there's a ladder at the specified position
+    for (Actor* actor : m_actors) {
+        if (actor != nullptr && dynamic_cast<Ladder*>(actor) != nullptr) {
+            if (actor->getX() == x && actor->getY() == y)
+                return true;
+        }
+    }
+    return false;
+}
+
+void StudentWorld::playSound(int soundId) {
+    GameWorld::playSound(soundId);
 }
