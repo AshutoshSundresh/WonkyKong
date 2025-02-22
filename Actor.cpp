@@ -110,6 +110,10 @@ void Player::handleKeyPress() {
                 moveTo(getX(), getY() - 1);
             break;
             
+        case KEY_PRESS_TAB:
+            handleBurp();
+            break;
+            
         case KEY_PRESS_SPACE:
             if (!m_isJumping && canInitiateJump()) {
                 m_isJumping = true;
@@ -117,5 +121,53 @@ void Player::handleKeyPress() {
                 getWorld()->playSound(SOUND_JUMP);
             }
             break;
+    }
+}
+
+void Player::handleBurp() {
+    if (m_burpCount <= 0)
+        return;
+        
+    // create burp in front of player
+    int burpX = getX() + (getDirection() == right ? 1 : -1);
+    int burpY = getY();
+    
+    // play burp sound
+    getWorld()->playSound(SOUND_BURP);
+    
+    // create and add burp to the world
+    getWorld()->addActor(new Burp(getWorld(), burpX, burpY, getDirection()));
+    
+    // decrease burp count
+    decrementBurpCount();
+}
+
+void Burp::doSomething() {
+    // Check if alive
+    if (!isAlive())
+        return;
+        
+    // decrement lifetime
+    m_lifetime--;
+    if (m_lifetime <= 0) {
+        setDead();
+        return;
+    }
+    
+    // attack any attackable actor in the current square
+    getWorld()->attackActorsAt(getX(), getY());
+}
+
+void GarlicGoodie::doSomething() {
+    // check if alive
+    if (!isAlive())
+        return;
+        
+    // check if player is on same square
+    if (getWorld()->isPlayerAt(getX(), getY())) {
+        getWorld()->increaseScore(25);
+        getWorld()->playSound(SOUND_GOT_GOODIE);
+        getWorld()->getPlayer()->setBurpCount(getWorld()->getPlayer()->getBurpCount() + 5);
+        setDead();
     }
 }

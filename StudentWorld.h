@@ -22,6 +22,10 @@ public:
     bool isBlockedByFloor(int x, int y) const;
     bool isOnLadder(int x, int y) const;  // returns true if there is a ladder at (x,y)
     void playSound(int soundId);
+    void addActor(Actor* actor) { m_actors.push_back(actor); }
+    void attackActorsAt(int x, int y);
+    bool isPlayerAt(int x, int y) const { return m_player->getX() == x && m_player->getY() == y; }
+    Player* getPlayer() const { return m_player; }
 
 private:
     void setDisplayText();  // helper function to set the game stats display

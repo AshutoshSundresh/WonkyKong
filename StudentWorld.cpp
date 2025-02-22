@@ -45,6 +45,9 @@ int StudentWorld::init()
                 case Level::ladder:
                     m_actors.push_back(new Ladder(this, x, y));
                     break;
+                case Level::garlic:
+                    m_actors.push_back(new GarlicGoodie(this, x, y));
+                    break;
                 default:
                     break;
             }
@@ -58,8 +61,19 @@ int StudentWorld::move()
 {
     // ask each actor (including player) to do something
     for (Actor* actor : m_actors) {
-        if (actor != nullptr)
+        if (actor != nullptr && actor->isAlive())
             actor->doSomething();
+    }
+    
+    // Remove dead actors
+    vector<Actor*>::iterator it = m_actors.begin();
+    while (it != m_actors.end()) {
+        if (!(*it)->isAlive() && *it != m_player) {
+            delete *it;
+            it = m_actors.erase(it);
+        } else {
+            ++it;
+        }
     }
     
     // Update display text
@@ -109,9 +123,9 @@ void StudentWorld::setDisplayText()
     int score = getScore();  // from GameWorld
     int level = getLevel();  // from GameWorld
     int lives = getLives();  // from GameWorld
-    unsigned int burps = 0;  // TODO: implement burp tracking
+    unsigned int burps = m_player ? m_player->getBurpCount() : 0;  // Get burp count from player
     
-    // Format: Score: 0000100 Level: 03 Lives: 03 Burps: 08
+    // Format: Score: 0000100 Level: 03 Lives: 03 Burps: 08 from spec
     ostringstream oss;
     oss << "Score: " << setw(7) << setfill('0') << score;
     oss << "  Level: " << setw(2) << setfill('0') << level;
@@ -119,4 +133,13 @@ void StudentWorld::setDisplayText()
     oss << "  Burps: " << setw(2) << setfill('0') << burps;
     
     setGameStatText(oss.str());
+}
+
+void StudentWorld::attackActorsAt(int x, int y) {
+    // Check all actors at the given location
+    for (Actor* actor : m_actors) {
+        if (actor->getX() == x && actor->getY() == y && actor->canBeAttacked()) {
+            actor->attack();
+        }
+    }
 }
