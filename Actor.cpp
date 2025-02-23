@@ -206,10 +206,20 @@ void Enemy::doSomething() {
     }
 }
 
-void Bonfire::doEnemySpecificAction() {
-    increaseAnimationNumber();  // bonfire-specific: animate the flames
+void Enemy::attack() {
+    if (!isAlive())
+        return;
+        
+    setDead();
+    getWorld()->playSound(SOUND_ENEMY_DIE);
+    getWorld()->increaseScore(100);
+    
+    onAttackBonus();
 }
 
+void Bonfire::doEnemySpecificAction() {
+    increaseAnimationNumber();  // animate the flames
+}
 
 // koopa can die unlike the base enemy doSomething, it also does not kill the player
 void Koopa::doSomething() {
@@ -258,13 +268,86 @@ void Koopa::doEnemySpecificAction() {
     }
 }
 
-void Koopa::attack() {
-    setDead();
-    getWorld()->playSound(SOUND_ENEMY_DIE);
-    getWorld()->increaseScore(100);
-    
-    // 1 in 3 chance to drop ExtraLifeGoodie
+void Koopa::onAttackBonus() {
     if (randInt(1, 3) == 1) {
         getWorld()->addActor(new ExtraLifeGoodie(getWorld(), getX(), getY()));
+    }
+}
+
+void Fireball::doEnemySpecificAction() {
+    if (!isAlive())
+        return;
+
+    // Only perform movement every 10 ticks
+    m_tickCount++;
+    if (m_tickCount % 10 != 0)
+        return;
+        
+    // Check for ladder climbing opportunities
+    if (getWorld()->isOnLadder(getX(), getY())) {
+        // Check for climbing up
+        if (!m_isClimbing || (m_isClimbing && m_climbingUp)) {
+            if (!getWorld()->isBlockedByFloor(getX(), getY() + 1)) {
+                if (m_climbingUp || randInt(1, 3) == 1) {
+                    m_isClimbing = true;
+                    m_climbingUp = true;
+                    moveTo(getX(), getY() + 1);
+                    
+                    // Check for player collision after moving
+                    if (getWorld()->isPlayerAt(getX(), getY())) {
+                        getWorld()->getPlayer()->attack();
+                    }
+                    return;
+                }
+            } else {
+                m_isClimbing = false;  // Hit ceiling, stop climbing
+            }
+        }
+    }
+    
+    // Check for climbing down
+    if (getWorld()->isOnLadder(getX(), getY() - 1)) {
+        if (!m_isClimbing || (m_isClimbing && !m_climbingUp)) {
+            if (!m_climbingUp || randInt(1, 3) == 1) {
+                m_isClimbing = true;
+                m_climbingUp = false;
+                moveTo(getX(), getY() - 1);
+                
+                // Check for player collision after moving
+                if (getWorld()->isPlayerAt(getX(), getY())) {
+                    getWorld()->getPlayer()->attack();
+                }
+                return;
+            }
+        }
+    } else if (m_isClimbing && !m_climbingUp) {
+        m_isClimbing = false;  // No more ladder below, stop climbing
+    }
+    
+    // If not climbing, handle horizontal movement
+    if (!m_isClimbing) {
+        int nextX = getX() + (getDirection() == right ? 1 : -1);
+        
+        // Check if next position is valid
+        if (getWorld()->isBlockedByFloor(nextX, getY()) || 
+            (!getWorld()->isBlockedByFloor(nextX, getY() - 1) && 
+             !getWorld()->isOnLadder(nextX, getY() - 1))) {
+            // Reverse direction if blocked or would fall
+            setDirection(getDirection() == right ? left : right);
+        } else {
+            // Move in current direction
+            moveTo(nextX, getY());
+            
+            // Check for player collision after moving
+            if (getWorld()->isPlayerAt(getX(), getY())) {
+                getWorld()->getPlayer()->attack();
+            }
+        }
+    }
+}
+
+void Fireball::onAttackBonus() {
+    if (randInt(1, 3) == 1) {
+        getWorld()->addActor(new GarlicGoodie(getWorld(), getX(), getY()));
     }
 }

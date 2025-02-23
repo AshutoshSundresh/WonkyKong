@@ -137,15 +137,17 @@ protected:
     virtual void doGoodieSpecificAction() override;
 };
 
-// Base class for all enemies that can kill the player
+// Base class for all enemies 
 class Enemy : public Actor {
 public:
     Enemy(StudentWorld* world, int imageID, int startX, int startY, int dir = none, double size = 1.0, bool canBeAttacked = false)
         : Actor(world, imageID, startX, startY, dir, size, canBeAttacked) {}
     virtual void doSomething() override;
+    virtual void attack() override;  // base implementation for attack
     
 protected:
     virtual void doEnemySpecificAction() = 0;  // pure virtual function for enemy-specific behavior
+    virtual void onAttackBonus() {}  // non-pure virtual function for koopa and fireball
 };
 
 // represents a bonfire that can attack the player and barrels
@@ -168,15 +170,32 @@ public:
         m_moveCounter = 0;
     }
     
-    virtual void attack() override;
-    virtual void doSomething() override;  // Override base doSomething
+    virtual void doSomething() override;  // Override base doSomething for freeze implementation
     
 protected:
+    virtual void onAttackBonus() override;
     virtual void doEnemySpecificAction() override;
 
 private:
     int m_freezeCooldown;  // cooldown timer for freeze attack
     int m_moveCounter;     // counter for movement timing
+};
+
+// represents a Fireball enemy that moves back and forth and can climb ladders
+class Fireball : public Enemy {
+public:
+    Fireball(StudentWorld* world, int startX, int startY)
+        : Enemy(world, IID_FIREBALL, startX, startY, (randInt(0, 1) == 0) ? left : right, 1.0, true),
+          m_isClimbing(false), m_climbingUp(false), m_tickCount(0) {}
+        
+protected:
+    virtual void onAttackBonus() override;
+    virtual void doEnemySpecificAction() override;
+
+private:
+    bool m_isClimbing;
+    bool m_climbingUp;
+    int m_tickCount;
 };
 
 #endif // ACTOR_H_
