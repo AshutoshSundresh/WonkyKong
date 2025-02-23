@@ -184,3 +184,19 @@ void GarlicGoodie::doGoodieSpecificAction() {
 void ExtraLifeGoodie::doGoodieSpecificAction() {
     getWorld()->incLives();
 }
+
+void Enemy::doSomething() {
+    doEnemySpecificAction();
+    
+    // Check for collision with player and handle death
+    if (getWorld()->isPlayerAt(getX(), getY())) {
+        getWorld()->decLives();  
+        getWorld()->playSound(SOUND_PLAYER_DIE);  
+        getWorld()->getPlayer()->setDead();  
+        return; 
+    }
+}
+
+void Bonfire::doEnemySpecificAction() {
+    increaseAnimationNumber();  // bonfire-specific: animate the flames
+}

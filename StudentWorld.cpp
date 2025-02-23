@@ -51,6 +51,9 @@ int StudentWorld::init()
                 case Level::extra_life:
                     m_actors.push_back(new ExtraLifeGoodie(this, x, y));
                     break;
+                case Level::bonfire:
+                    m_actors.push_back(new Bonfire(this, x, y));
+                    break;
                 default:
                     break;
             }
@@ -66,6 +69,9 @@ int StudentWorld::move()
     for (Actor* actor : m_actors) {
         if (actor != nullptr && actor->isAlive())
             actor->doSomething();
+            
+        if (!m_player->isAlive())
+            return GWSTATUS_PLAYER_DIED;  // restart level when player dies
     }
     
     // Remove dead actors

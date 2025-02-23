@@ -127,4 +127,25 @@ protected:
     virtual void doGoodieSpecificAction() override;
 };
 
+// Base class for all enemies that can kill the player
+class Enemy : public Actor {
+public:
+    Enemy(StudentWorld* world, int imageID, int startX, int startY, int dir = none, double size = 1.0)
+        : Actor(world, imageID, startX, startY, dir, size, false) {}
+    virtual void doSomething() override;
+    
+protected:
+    virtual void doEnemySpecificAction() = 0;  // pure virtual function for enemy-specific behavior
+};
+
+// represents a bonfire that can attack the player and barrels
+class Bonfire : public Enemy {
+public:
+    Bonfire(StudentWorld* world, int startX, int startY)
+        : Enemy(world, IID_BONFIRE, startX, startY) {}
+    
+protected:
+    virtual void doEnemySpecificAction() override;
+};
+
 #endif // ACTOR_H_
