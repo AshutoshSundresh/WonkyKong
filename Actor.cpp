@@ -417,3 +417,96 @@ void Fireball::onAttackBonus() {
         getWorld()->addActor(new GarlicGoodie(getWorld(), getX(), getY()));
     }
 }
+
+void Barrel::doEnemySpecificAction() {
+    if (getWorld()->isPlayerAt(getX(), getY())) {
+        getWorld()->attackPlayer();
+        return;
+    }
+    if (getWorld()->isBonfireAt(getX(), getY())) {
+        setDead();
+        return;
+    }
+
+    // check if there's no floor beneath
+    if (!getWorld()->isBlockedByFloor(getX(), getY() - 1)) {
+        moveTo(getX(), getY() - 1);
+        
+        // just landed on floor, reverse direction
+        if (getWorld()->isBlockedByFloor(getX(), getY() - 1)) {
+            setDirection(getDirection() == right ? left : right);
+        }
+        return;
+    }
+
+    m_tickCount++;
+    if (m_tickCount >= 10) {
+        m_tickCount = 0;
+
+        // calculate target position based on current direction
+        int targetX = getX() + (getDirection() == right ? 1 : -1);
+
+        // blocked by floor in front, reverse direction
+        if (getWorld()->isBlockedByFloor(targetX, getY())) {
+            setDirection(getDirection() == right ? left : right);
+        } else {
+            moveTo(targetX, getY());
+
+            // check if we hit player after moving
+            if (getWorld()->isPlayerAt(getX(), getY())) {
+                getWorld()->attackPlayer();
+                return;
+            }
+        }
+    }
+}
+
+double Kong::getDistanceToPlayer() const {
+    int playerX, playerY;
+    getWorld()->getPlayerLocation(playerX, playerY);
+    
+    // Euclidean distance
+    double dx = getX() - playerX;
+    double dy = getY() - playerY;
+    return sqrt(dx * dx + dy * dy);
+}
+
+int Kong::getBarrelThrowInterval() const {
+    return std::max(200 - 50 * getWorld()->getLevel(), 50);
+}
+
+void Kong::doSomething() {
+    increaseAnimationNumber();
+    
+    if (!m_isFleeing && getDistanceToPlayer() <= 2.0) {
+        m_isFleeing = true;
+    }
+    
+    if (!m_isFleeing) {
+        m_ticksSinceLastBarrel++;
+        if (m_ticksSinceLastBarrel >= getBarrelThrowInterval()) {
+            m_ticksSinceLastBarrel = 0;
+            
+            int barrelX = getX() + (getDirection() == right ? 1 : -1);
+            getWorld()->addActor(new Barrel(getWorld(), barrelX, getY(), getDirection()));
+        }
+    }
+    
+    m_tickCount++;
+    if (m_tickCount >= 5) {
+        m_tickCount = 0;
+        
+        if (m_isFleeing) {
+            // on a ladder or one space above it, keep climbing
+            if (getWorld()->isOnLadder(getX(), getY()) || getWorld()->isOnLadder(getX(), getY() + 1)) {
+                moveTo(getX(), getY() + 1);
+            } else {
+                // reached one space above the ladder
+                getWorld()->increaseScore(1000);
+                getWorld()->playSound(SOUND_FINISHED_LEVEL);
+                getWorld()->levelComplete();
+                setDead();
+            }
+        }
+    }
+}

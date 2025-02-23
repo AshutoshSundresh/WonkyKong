@@ -13,7 +13,7 @@ GameWorld* createStudentWorld(string assetPath)
 // Students:  Add code to this file, StudentWorld.h, Actor.h, and Actor.cpp
 
 StudentWorld::StudentWorld(string assetPath)
-: GameWorld(assetPath), m_player(nullptr), m_level(assetPath)
+: GameWorld(assetPath), m_player(nullptr), m_level(assetPath), m_levelComplete(false)
 {
 }
 
@@ -23,13 +23,16 @@ StudentWorld::~StudentWorld() {
 
 int StudentWorld::init()
 {
+    m_levelComplete = false;
+
     // load the current level
-    string levelFile = "level00.txt";
+    string levelFile = "level";
+    levelFile += (getLevel() < 10 ? "0" : "") + to_string(getLevel()) + ".txt";
     Level::LoadResult result = m_level.loadLevel(levelFile);
     if (result != Level::load_success)
         return GWSTATUS_LEVEL_ERROR;
     
-    // iterate through the level grid and create actors
+    // create actors
     for (int x = 0; x < VIEW_WIDTH; x++) {
         for (int y = 0; y < VIEW_HEIGHT; y++) {
             Level::MazeEntry item = m_level.getContentsOf(x, y);
@@ -59,7 +62,13 @@ int StudentWorld::init()
                     break;
                 case Level::fireball:
                     m_actors.push_back(new Fireball(this, x, y));
-                    break;    
+                    break;  
+                case Level::right_kong:
+                    m_actors.push_back(new Kong(this, x, y, 1));  // 1 for right-facing
+                    break;  
+                case Level::left_kong:
+                    m_actors.push_back(new Kong(this, x, y, 2));  // != 1 for left-facing
+                    break;  
                 default:
                     break;
             }
@@ -71,16 +80,22 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-    // ask each actor (including player) to do something
+    setDisplayText();
+    
     for (Actor* actor : m_actors) {
-        if (actor != nullptr && actor->isAlive())
+        if (actor != nullptr && actor->isAlive()) {
             actor->doSomething();
             
-        if (!m_player->isAlive())
-            return GWSTATUS_PLAYER_DIED;  // restart level when player dies
+            // if player died during this actor's action
+            if (!m_player->isAlive())
+                return GWSTATUS_PLAYER_DIED;
+                
+            // if kong fled
+            if (m_levelComplete)
+                return GWSTATUS_FINISHED_LEVEL;
+        }
     }
     
-    // Remove dead actors
     vector<Actor*>::iterator it = m_actors.begin();
     while (it != m_actors.end()) {
         if (!(*it)->isAlive() && *it != m_player) {
@@ -91,14 +106,15 @@ int StudentWorld::move()
         }
     }
     
-    // Update display text
-    setDisplayText();
-    
     return GWSTATUS_CONTINUE_GAME;
 }
 
 void StudentWorld::cleanUp()
 {
+    if (m_actors.size() == 0 && m_player == nullptr) {
+        return;
+    }
+
     // delete all actors
     for (Actor* actor : m_actors) {
         delete actor;
@@ -129,29 +145,35 @@ bool StudentWorld::isOnLadder(int x, int y) const {
     return false;
 }
 
+bool StudentWorld::isBonfireAt(int x, int y) const {
+    for (Actor* actor : m_actors) {
+        if (actor->getX() == x && actor->getY() == y) {
+            Bonfire* bonfire = dynamic_cast<Bonfire*>(actor);
+            if (bonfire != nullptr)
+                return true;
+        }
+    }
+    return false;
+}
+
 void StudentWorld::playSound(int soundId) {
     GameWorld::playSound(soundId);
 }
 
 void StudentWorld::setDisplayText()
 {
-    int score = getScore();  // from GameWorld
-    int level = getLevel();  // from GameWorld
-    int lives = getLives();  // from GameWorld
-    unsigned int burps = m_player ? m_player->getBurpCount() : 0;  // Get burp count from player
-    
     // Format: Score: 0000100 Level: 03 Lives: 03 Burps: 08 from spec
     ostringstream oss;
-    oss << "Score: " << setw(7) << setfill('0') << score;
-    oss << "  Level: " << setw(2) << setfill('0') << level;
-    oss << "  Lives: " << setw(2) << setfill('0') << lives;
-    oss << "  Burps: " << setw(2) << setfill('0') << burps;
-    
+    oss << "Score: " << setw(7) << setfill('0') << getScore()
+        << "  Level: " << setw(2) << getLevel()
+        << "  Lives: " << setw(2) << getLives()
+        << "  Burps: " << setw(2) << (m_player ? m_player->getBurpCount() : 0);
+
     setGameStatText(oss.str());
 }
 
 void StudentWorld::attackNonPlayerActorsAt(int x, int y) {
-    // Check all actors at the given location, excluding the player
+    // attack all actors at the given location, excluding the player
     for (Actor* actor : m_actors) {
         if (actor->getX() == x && actor->getY() == y && actor->canBeAttacked() && actor != m_player) {
             actor->attack();

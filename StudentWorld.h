@@ -28,11 +28,18 @@ public:
     Player* getPlayer() const { return m_player; }
     void freezePlayer() { m_player->setFrozen(true); }  
 
+    void getPlayerLocation(int& x, int& y) const { x = m_player->getX(); y = m_player->getY(); }
+    void attackPlayer() { m_player->attack(); }
+    bool isBonfireAt(int x, int y) const;  
+    void levelComplete() { m_levelComplete = true; }
+    bool isLevelComplete() const { return m_levelComplete; }
+
 private:
     void setDisplayText();  // helper function to set the game stats display
     std::vector<Actor*> m_actors;  // container for all actors (Floor, Player, etc.)
     Player* m_player;  
     Level m_level;     
+    bool m_levelComplete;  
 };
 
 #endif // STUDENTWORLD_H_

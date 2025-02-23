@@ -202,4 +202,38 @@ private:
     int getXMod() const { return getDirection() == right ? 1 : -1; }
 };
 
+// represents a rolling barrel that can attack the player
+class Barrel : public Enemy {
+public:
+    Barrel(StudentWorld* world, int startX, int startY, int dir)
+        : Enemy(world, IID_BARREL, startX, startY, dir, 1.0, true), m_tickCount(0) {}
+    
+protected:
+    virtual void doEnemySpecificAction() override;
+
+private:
+    int m_tickCount;  
+};
+
+// represents Kong, who throws barrels and flees when player gets close
+class Kong : public Enemy {
+public:
+    Kong(StudentWorld* world, int startX, int startY, int dir)
+        : Enemy(world, IID_KONG, startX, startY, dir == 1 ? right : left, 1.0, false), 
+          m_isFleeing(false), m_ticksSinceLastBarrel(0), m_tickCount(0) {}
+          
+    virtual void doSomething() override;
+
+protected:
+    virtual void doEnemySpecificAction() override {}
+
+private:
+    bool m_isFleeing;
+    int m_ticksSinceLastBarrel;
+    int m_tickCount;
+
+    double getDistanceToPlayer() const;
+    int getBarrelThrowInterval() const;
+};
+
 #endif // ACTOR_H_
