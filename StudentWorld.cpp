@@ -54,6 +54,9 @@ int StudentWorld::init()
                 case Level::bonfire:
                     m_actors.push_back(new Bonfire(this, x, y));
                     break;
+                case Level::koopa:
+                    m_actors.push_back(new Koopa(this, x, y));
+                    break;
                 default:
                     break;
             }

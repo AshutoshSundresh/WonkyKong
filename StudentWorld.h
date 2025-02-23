@@ -26,6 +26,7 @@ public:
     void attackActorsAt(int x, int y);
     bool isPlayerAt(int x, int y) const { return m_player->getX() == x && m_player->getY() == y; }
     Player* getPlayer() const { return m_player; }
+    void freezePlayer() { m_player->setFrozen(true); }  
 
 private:
     void setDisplayText();  // helper function to set the game stats display

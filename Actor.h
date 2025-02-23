@@ -24,9 +24,11 @@ public:
     
     virtual ~Actor() {} 
 
+protected:
+    bool m_canBeAttacked;
+
 private:
     StudentWorld* m_world;
-    bool m_canBeAttacked;
     bool m_isAlive;
 };
 
@@ -44,7 +46,7 @@ class Player : public Actor {
 public:
     Player(StudentWorld* world, int startX, int startY)
         : Actor(world, IID_PLAYER, startX, startY, right), m_isAlive(true), 
-          m_isJumping(false), m_jumpStep(0), m_burpCount(0) {}
+          m_isJumping(false), m_jumpStep(0), m_burpCount(0), m_isFrozen(false), m_frozenTicks(0) {}
     
     virtual void doSomething() override;
     
@@ -57,11 +59,19 @@ public:
     void decrementBurpCount() { if (m_burpCount > 0) m_burpCount--; }
     void addBurp() { m_burpCount++; }
     
+    bool isFrozen() const { return m_isFrozen; }
+    void setFrozen(bool frozen) { 
+        m_isFrozen = frozen; 
+        if (frozen) m_frozenTicks = 50; 
+    }
+    
 private:
     bool m_isAlive;
     bool m_isJumping;
     int m_jumpStep;
     int m_burpCount;
+    bool m_isFrozen;
+    int m_frozenTicks;
     
     void executeJumpStep();
     bool canInitiateJump() const;
@@ -130,8 +140,8 @@ protected:
 // Base class for all enemies that can kill the player
 class Enemy : public Actor {
 public:
-    Enemy(StudentWorld* world, int imageID, int startX, int startY, int dir = none, double size = 1.0)
-        : Actor(world, imageID, startX, startY, dir, size, false) {}
+    Enemy(StudentWorld* world, int imageID, int startX, int startY, int dir = none, double size = 1.0, bool canBeAttacked = false)
+        : Actor(world, imageID, startX, startY, dir, size, canBeAttacked) {}
     virtual void doSomething() override;
     
 protected:
@@ -146,6 +156,27 @@ public:
     
 protected:
     virtual void doEnemySpecificAction() override;
+};
+
+// represents a Koopa enemy that can freeze the player
+class Koopa : public Enemy {
+public:
+    Koopa(StudentWorld* world, int startX, int startY)
+        : Enemy(world, IID_KOOPA, startX, startY, (randInt(0, 1) == 0) ? left : right, 1.0, true)
+    {
+        m_freezeCooldown = 0;
+        m_moveCounter = 0;
+    }
+    
+    virtual void attack() override;
+    virtual void doSomething() override;  // Override base doSomething
+    
+protected:
+    virtual void doEnemySpecificAction() override;
+
+private:
+    int m_freezeCooldown;  // cooldown timer for freeze attack
+    int m_moveCounter;     // counter for movement timing
 };
 
 #endif // ACTOR_H_

@@ -7,6 +7,15 @@
 void Player::doSomething() {
     if (!isAlive())
         return;
+    
+    // Handle frozen state
+    if (m_isFrozen) {
+        m_frozenTicks--;
+        if (m_frozenTicks <= 0) {
+            m_isFrozen = false;
+        }
+        return;  // Do nothing else while frozen
+    }
         
     if (m_isJumping) {
         executeJumpStep();
@@ -199,4 +208,63 @@ void Enemy::doSomething() {
 
 void Bonfire::doEnemySpecificAction() {
     increaseAnimationNumber();  // bonfire-specific: animate the flames
+}
+
+
+// koopa can die unlike the base enemy doSomething, it also does not kill the player
+void Koopa::doSomething() {
+    if (!isAlive())
+        return;
+        
+    // Check if on same square as player and can freeze
+    if (getWorld()->isPlayerAt(getX(), getY()) && m_freezeCooldown == 0) {
+        getWorld()->freezePlayer();
+        m_freezeCooldown = 50;  // Set cooldown timer
+        return;
+    }
+
+    // Decrement freeze cooldown if active
+    if (m_freezeCooldown > 0)
+        m_freezeCooldown--;
+
+    // Handle movement every 10 ticks
+    m_moveCounter = (m_moveCounter + 1) % 10;
+    if (m_moveCounter == 0) {
+        doEnemySpecificAction();
+    }
+}
+
+void Koopa::doEnemySpecificAction() {
+    // handle Koopa's movement here
+    // Determine target position based on direction
+    int targetX = getX() + (getDirection() == right ? 1 : -1);
+    
+    // check if movement is valid
+    bool hasFloorAhead = getWorld()->isBlockedByFloor(targetX, getY());
+    bool hasFloorBelow = getWorld()->isBlockedByFloor(targetX, getY() - 1);
+    bool hasLadderBelow = getWorld()->isOnLadder(targetX, getY() - 1);
+    
+    // Can move if there's no floor ahead AND (there's floor OR ladder below)
+    if (!hasFloorAhead && (hasFloorBelow || hasLadderBelow)) {
+        moveTo(targetX, getY());
+        
+        if (getWorld()->isPlayerAt(getX(), getY()) && m_freezeCooldown == 0) {
+            getWorld()->freezePlayer();
+            m_freezeCooldown = 50;
+        }
+    } else {
+        // reverse direction
+        setDirection(getDirection() == right ? left : right);
+    }
+}
+
+void Koopa::attack() {
+    setDead();
+    getWorld()->playSound(SOUND_ENEMY_DIE);
+    getWorld()->increaseScore(100);
+    
+    // 1 in 3 chance to drop ExtraLifeGoodie
+    if (randInt(1, 3) == 1) {
+        getWorld()->addActor(new ExtraLifeGoodie(getWorld(), getX(), getY()));
+    }
 }
