@@ -168,11 +168,7 @@ protected:
 class Koopa : public Enemy {
 public:
     Koopa(StudentWorld* world, int startX, int startY)
-        : Enemy(world, IID_KOOPA, startX, startY, (randInt(0, 1) == 0) ? left : right, 1.0, true)
-    {
-        m_freezeCooldown = 0;
-        m_moveCounter = 0;
-    }
+        : Enemy(world, IID_KOOPA, startX, startY, (randInt(0, 1) == 0) ? left : right, 1.0, true), m_freezeCooldown(0), m_moveCounter(0) {}
     
     virtual void doSomething() override;  // Override base doSomething for freeze implementation
     
