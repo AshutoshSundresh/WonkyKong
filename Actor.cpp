@@ -168,8 +168,8 @@ void Burp::doSomething() {
         return;
     }
     
-    // attack any attackable actor in the current square
-    getWorld()->attackActorsAt(getX(), getY());
+    // attack any non-player attackable actor in the current square
+    getWorld()->attackNonPlayerActorsAt(getX(), getY());
 }
 
 void Goodie::doSomething() {

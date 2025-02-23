@@ -23,7 +23,7 @@ public:
     bool isOnLadder(int x, int y) const;  // returns true if there is a ladder at (x,y)
     void playSound(int soundId);
     void addActor(Actor* actor) { m_actors.push_back(actor); }
-    void attackActorsAt(int x, int y);
+    void attackNonPlayerActorsAt(int x, int y);  // attacks only non-player actors at (x,y)
     bool isPlayerAt(int x, int y) const { return m_player->getX() == x && m_player->getY() == y; }
     Player* getPlayer() const { return m_player; }
     void freezePlayer() { m_player->setFrozen(true); }  

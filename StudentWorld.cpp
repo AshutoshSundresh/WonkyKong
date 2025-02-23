@@ -150,10 +150,10 @@ void StudentWorld::setDisplayText()
     setGameStatText(oss.str());
 }
 
-void StudentWorld::attackActorsAt(int x, int y) {
-    // Check all actors at the given location
+void StudentWorld::attackNonPlayerActorsAt(int x, int y) {
+    // Check all actors at the given location, excluding the player
     for (Actor* actor : m_actors) {
-        if (actor->getX() == x && actor->getY() == y && actor->canBeAttacked()) {
+        if (actor->getX() == x && actor->getY() == y && actor->canBeAttacked() && actor != m_player) {
             actor->attack();
         }
     }
