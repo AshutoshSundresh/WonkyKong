@@ -152,6 +152,7 @@ void Player::handleBurp() {
 }
 
 void Player::attack() {
+    getWorld()->playSound(SOUND_PLAYER_DIE);
     getWorld()->decLives();
     setDead();
 }
@@ -206,12 +207,18 @@ void Enemy::doSomething() {
     }
 }
 
+void Enemy::checkAndHandlePlayerCollision() {
+    if (getWorld()->isPlayerAt(getX(), getY())) {
+        getWorld()->getPlayer()->attack();
+    }
+}
+
 void Enemy::attack() {
     if (!isAlive())
         return;
-        
+
+    getWorld()->playSound(SOUND_ENEMY_DIE);    
     setDead();
-    getWorld()->playSound(SOUND_ENEMY_DIE);
     getWorld()->increaseScore(100);
     
     onAttackBonus();
@@ -406,10 +413,12 @@ void Fireball::doEnemySpecificAction() {
     m_tickCount = 0;
 }
 
-void Fireball::checkAndHandlePlayerCollision() {
-    if (getWorld()->isPlayerAt(getX(), getY())) {
-        getWorld()->getPlayer()->attack();
-    }
+void Fireball::doSomething() {
+    if (!isAlive())
+        return;
+    
+    // collision is handled here for this impl
+    doEnemySpecificAction();
 }
 
 void Fireball::onAttackBonus() {
@@ -418,11 +427,16 @@ void Fireball::onAttackBonus() {
     }
 }
 
-void Barrel::doEnemySpecificAction() {
-    if (getWorld()->isPlayerAt(getX(), getY())) {
-        getWorld()->attackPlayer();
+void Barrel::doSomething() {
+    if (!isAlive())
         return;
-    }
+    
+    // collision is handled here for this impl
+    doEnemySpecificAction();
+}
+
+void Barrel::doEnemySpecificAction() {
+    checkAndHandlePlayerCollision();
     if (getWorld()->isBonfireAt(getX(), getY())) {
         setDead();
         return;
@@ -453,10 +467,7 @@ void Barrel::doEnemySpecificAction() {
             moveTo(targetX, getY());
 
             // check if we hit player after moving
-            if (getWorld()->isPlayerAt(getX(), getY())) {
-                getWorld()->attackPlayer();
-                return;
-            }
+            checkAndHandlePlayerCollision();
         }
     }
 }

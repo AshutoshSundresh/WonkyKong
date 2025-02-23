@@ -152,6 +152,7 @@ public:
 protected:
     virtual void doEnemySpecificAction() = 0;  // pure virtual function for enemy-specific behavior
     virtual void onAttackBonus() {}  // non-pure virtual function for koopa and fireball
+    void checkAndHandlePlayerCollision();  // common collision handling for all enemies
 };
 
 // represents a bonfire that can attack the player and barrels
@@ -188,17 +189,18 @@ public:
         : Enemy(world, IID_FIREBALL, startX, startY, (randInt(0, 1) == 0) ? left : right, 1.0, true),
           m_climbingUp(false), m_climbingDown(false), m_justGotOffLadder(false), m_tickCount(0) {}
         
+    virtual void doSomething() override;  // skip base class collision check
+
 protected:
     virtual void onAttackBonus() override;
     virtual void doEnemySpecificAction() override;
 
 private:
     bool m_climbingUp;        
-    bool m_climbingDown;     
-    bool m_justGotOffLadder;  // just got off a ladder this tick
-    int m_tickCount;          
+    bool m_climbingDown;
+    bool m_justGotOffLadder;
+    int m_tickCount;
     
-    void checkAndHandlePlayerCollision();
     int getXMod() const { return getDirection() == right ? 1 : -1; }
 };
 
@@ -208,6 +210,8 @@ public:
     Barrel(StudentWorld* world, int startX, int startY, int dir)
         : Enemy(world, IID_BARREL, startX, startY, dir, 1.0, true), m_tickCount(0) {}
     
+    virtual void doSomething() override;  // skip base class collision check
+        
 protected:
     virtual void doEnemySpecificAction() override;
 
