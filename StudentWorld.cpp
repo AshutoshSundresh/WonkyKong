@@ -29,7 +29,9 @@ int StudentWorld::init()
     string levelFile = "level";
     levelFile += (getLevel() < 10 ? "0" : "") + to_string(getLevel()) + ".txt";
     Level::LoadResult result = m_level.loadLevel(levelFile);
-    if (result != Level::load_success)
+    if (result == Level::load_fail_file_not_found || getLevel() > 99)
+        return GWSTATUS_PLAYER_WON;
+    if (result == Level::load_fail_bad_format)
         return GWSTATUS_LEVEL_ERROR;
     
     // create actors
@@ -89,7 +91,7 @@ int StudentWorld::move()
             // if player died during this actor's action
             if (!m_player->isAlive())
                 return GWSTATUS_PLAYER_DIED;
-                
+            
             // if kong fled
             if (m_levelComplete)
                 return GWSTATUS_FINISHED_LEVEL;
