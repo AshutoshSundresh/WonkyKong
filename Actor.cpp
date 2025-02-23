@@ -229,7 +229,7 @@ void Koopa::doSomething() {
     // Check if on same square as player and can freeze
     if (getWorld()->isPlayerAt(getX(), getY()) && m_freezeCooldown == 0) {
         getWorld()->freezePlayer();
-        m_freezeCooldown = 50;  // Set cooldown timer
+        m_freezeCooldown = FROZEN_DURATION;  // Set cooldown timer
         return;
     }
 
@@ -237,8 +237,8 @@ void Koopa::doSomething() {
     if (m_freezeCooldown > 0)
         m_freezeCooldown--;
 
-    // Handle movement every 10 ticks
-    m_moveCounter = (m_moveCounter + 1) % 10;
+    // Handle movement every MOVEMENT_TICK_INTERVAL ticks
+    m_moveCounter = (m_moveCounter + 1) % MOVEMENT_TICK_INTERVAL;
     if (m_moveCounter == 0) {
         doEnemySpecificAction();
     }
@@ -260,7 +260,7 @@ void Koopa::doEnemySpecificAction() {
         
         if (getWorld()->isPlayerAt(getX(), getY()) && m_freezeCooldown == 0) {
             getWorld()->freezePlayer();
-            m_freezeCooldown = 50;
+            m_freezeCooldown = FROZEN_DURATION;
         }
     } else {
         // reverse direction
@@ -493,7 +493,7 @@ void Kong::doSomething() {
     }
     
     m_tickCount++;
-    if (m_tickCount >= 5) {
+    if (m_tickCount >= MOVEMENT_TICK_INTERVAL/2) {  
         m_tickCount = 0;
         
         if (m_isFleeing) {

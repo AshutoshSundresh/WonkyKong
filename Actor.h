@@ -4,9 +4,13 @@
 #include "GraphObject.h"
 #include "GameConstants.h"
 
-class StudentWorld;  // forward declaration
+static const int FROZEN_DURATION = 50;
+static const int BURP_LIFETIME = 5;
+static const int MOVEMENT_TICK_INTERVAL = 10;
 
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
+
+class StudentWorld;  // forward declaration
 
 class Actor : public GraphObject {
 public:
@@ -62,7 +66,7 @@ public:
     bool isFrozen() const { return m_isFrozen; }
     void setFrozen(bool frozen) { 
         m_isFrozen = frozen; 
-        if (frozen) m_frozenTicks = 50; 
+        if (frozen) m_frozenTicks = FROZEN_DURATION; 
     }
     
 private:
@@ -93,7 +97,7 @@ public:
 class Burp : public Actor {
 public:
     Burp(StudentWorld* world, int startX, int startY, int dir)
-        : Actor(world, IID_BURP, startX, startY, dir), m_lifetime(5) {}
+        : Actor(world, IID_BURP, startX, startY, dir), m_lifetime(BURP_LIFETIME) {}
     
     virtual void doSomething() override;
     virtual void attack() override {} // Burp can't be attacked
