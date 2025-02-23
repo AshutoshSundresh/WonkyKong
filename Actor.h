@@ -186,16 +186,20 @@ class Fireball : public Enemy {
 public:
     Fireball(StudentWorld* world, int startX, int startY)
         : Enemy(world, IID_FIREBALL, startX, startY, (randInt(0, 1) == 0) ? left : right, 1.0, true),
-          m_isClimbing(false), m_climbingUp(false), m_tickCount(0) {}
+          m_climbingUp(false), m_climbingDown(false), m_justGotOffLadder(false), m_tickCount(0) {}
         
 protected:
     virtual void onAttackBonus() override;
     virtual void doEnemySpecificAction() override;
 
 private:
-    bool m_isClimbing;
-    bool m_climbingUp;
-    int m_tickCount;
+    bool m_climbingUp;        
+    bool m_climbingDown;     
+    bool m_justGotOffLadder;  // just got off a ladder this tick
+    int m_tickCount;          
+    
+    void checkAndHandlePlayerCollision();
+    int getXMod() const { return getDirection() == right ? 1 : -1; }
 };
 
 #endif // ACTOR_H_

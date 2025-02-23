@@ -278,71 +278,137 @@ void Fireball::doEnemySpecificAction() {
     if (!isAlive())
         return;
 
-    // Only perform movement every 10 ticks
-    m_tickCount++;
-    if (m_tickCount % 10 != 0)
+    if (m_tickCount < 10) {
+        ++m_tickCount;
         return;
-        
-    // Check for ladder climbing opportunities
-    if (getWorld()->isOnLadder(getX(), getY())) {
-        // Check for climbing up
-        if (!m_isClimbing || (m_isClimbing && m_climbingUp)) {
-            if (!getWorld()->isBlockedByFloor(getX(), getY() + 1)) {
-                if (m_climbingUp || randInt(1, 3) == 1) {
-                    m_isClimbing = true;
-                    m_climbingUp = true;
-                    moveTo(getX(), getY() + 1);
-                    
-                    // Check for player collision after moving
-                    if (getWorld()->isPlayerAt(getX(), getY())) {
-                        getWorld()->getPlayer()->attack();
-                    }
-                    return;
-                }
+    }
+    
+    // reset at new tick
+    m_justGotOffLadder = false;
+    
+    // if currently climbing up, continue until ladder ends
+    if (m_climbingUp) {
+        if (!getWorld()->isOnLadder(getX(), getY()) || 
+            getWorld()->isBlockedByFloor(getX(), getY() + 1)) {
+            // ladder ended or hit ceiling, stop climbing and try to move in current direction
+            m_climbingUp = false;
+            m_justGotOffLadder = true;
+            
+            // try to move in current direction
+            int nextX = getX() + getXMod();
+            if (!getWorld()->isBlockedByFloor(nextX, getY()) && 
+                (getWorld()->isBlockedByFloor(nextX, getY() - 1) || 
+                 getWorld()->isOnLadder(nextX, getY() - 1))) {
+                moveTo(nextX, getY());
             } else {
-                m_isClimbing = false;  // Hit ceiling, stop climbing
+                // if can't move forward, reverse direction and try again next tick
+                setDirection(getDirection() == right ? left : right);
             }
+            checkAndHandlePlayerCollision();
+            m_tickCount = 0;
+            return;
+        } else {
+            // continue climbing up
+            moveTo(getX(), getY() + 1);
+            checkAndHandlePlayerCollision();
+            m_tickCount = 0;
+            return;
         }
     }
     
-    // Check for climbing down
-    if (getWorld()->isOnLadder(getX(), getY() - 1)) {
-        if (!m_isClimbing || (m_isClimbing && !m_climbingUp)) {
-            if (!m_climbingUp || randInt(1, 3) == 1) {
-                m_isClimbing = true;
-                m_climbingUp = false;
+    // if currently climbing down, continue until ladder ends
+    if (m_climbingDown) {
+        if (!getWorld()->isOnLadder(getX(), getY() - 1)) {
+            // ladder ended, stop climbing and try to move in current direction
+            m_climbingDown = false;
+            m_justGotOffLadder = true;
+            
+            // try to move in current direction
+            int nextX = getX() + getXMod();
+            if (!getWorld()->isBlockedByFloor(nextX, getY()) && 
+                (getWorld()->isBlockedByFloor(nextX, getY() - 1) || 
+                 getWorld()->isOnLadder(nextX, getY() - 1))) {
+                moveTo(nextX, getY());
+            } else {
+                // if can't move forward, reverse direction and try again next tick
+                setDirection(getDirection() == right ? left : right);
+            }
+            checkAndHandlePlayerCollision();
+            m_tickCount = 0;
+            return;
+        } else {
+            // continue climbing down
+            moveTo(getX(), getY() - 1);
+            checkAndHandlePlayerCollision();
+            m_tickCount = 0;
+            return;
+        }
+    }
+    
+    // check if we've hit a corner (wall or gap ahead)
+    bool hitCorner = getWorld()->isBlockedByFloor(getX() + getXMod(), getY()) || 
+                    !(getWorld()->isBlockedByFloor(getX() + getXMod(), getY() - 1) || 
+                      getWorld()->isOnLadder(getX() + getXMod(), getY() - 1));
+                      
+    // if we hit a corner
+    if (hitCorner) {
+        if (!m_justGotOffLadder) {
+            // not just off ladder, check if we can climb
+            if (getWorld()->isOnLadder(getX(), getY()) && 
+                !getWorld()->isBlockedByFloor(getX(), getY() + 1) &&
+                randInt(0, 2) == 0) {
+                // climb up with 1/3 chance
+                m_climbingUp = true;
+                moveTo(getX(), getY() + 1);
+                checkAndHandlePlayerCollision();
+                m_tickCount = 0;
+                return;
+            } else if (getWorld()->isOnLadder(getX(), getY() - 1) &&
+                      randInt(0, 2) == 0) {
+                // climb down with 1/3 chance
+                m_climbingDown = true;
                 moveTo(getX(), getY() - 1);
-                
-                // Check for player collision after moving
-                if (getWorld()->isPlayerAt(getX(), getY())) {
-                    getWorld()->getPlayer()->attack();
-                }
+                checkAndHandlePlayerCollision();
+                m_tickCount = 0;
                 return;
             }
         }
-    } else if (m_isClimbing && !m_climbingUp) {
-        m_isClimbing = false;  // No more ladder below, stop climbing
+        
+        // if we can't or won't climb, reverse direction
+        setDirection(getDirection() == right ? left : right);
+        m_tickCount = 0;
+        return;
+    } else if (!m_justGotOffLadder) {
+        // if we encounter a ladder while walking (not at a corner and not just off ladder)
+        if (getWorld()->isOnLadder(getX(), getY()) && 
+            !getWorld()->isBlockedByFloor(getX(), getY() + 1) &&
+            randInt(0, 2) == 0) {
+            // climb up with 1/3 chance
+            m_climbingUp = true;
+            moveTo(getX(), getY() + 1);
+            checkAndHandlePlayerCollision();
+            m_tickCount = 0;
+            return;
+        } else if (getWorld()->isOnLadder(getX(), getY() - 1) &&
+                  randInt(0, 2) == 0) {
+            // climb down with 1/3 chance
+            m_climbingDown = true;
+            moveTo(getX(), getY() - 1);
+            checkAndHandlePlayerCollision();
+            m_tickCount = 0;
+            return;
+        }
     }
     
-    // If not climbing, handle horizontal movement
-    if (!m_isClimbing) {
-        int nextX = getX() + (getDirection() == right ? 1 : -1);
-        
-        // Check if next position is valid
-        if (getWorld()->isBlockedByFloor(nextX, getY()) || 
-            (!getWorld()->isBlockedByFloor(nextX, getY() - 1) && 
-             !getWorld()->isOnLadder(nextX, getY() - 1))) {
-            // Reverse direction if blocked or would fall
-            setDirection(getDirection() == right ? left : right);
-        } else {
-            // Move in current direction
-            moveTo(nextX, getY());
-            
-            // Check for player collision after moving
-            if (getWorld()->isPlayerAt(getX(), getY())) {
-                getWorld()->getPlayer()->attack();
-            }
-        }
+    // Continue moving in current direction
+    moveTo(getX() + getXMod(), getY());
+    checkAndHandlePlayerCollision();
+    m_tickCount = 0;
+}
+
+void Fireball::checkAndHandlePlayerCollision() {
+    if (getWorld()->isPlayerAt(getX(), getY())) {
+        getWorld()->getPlayer()->attack();
     }
 }
 
