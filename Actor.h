@@ -15,7 +15,9 @@ class StudentWorld;  // forward declaration
 class Actor : public GraphObject {
 public:
     Actor(StudentWorld* world, int imageID, int startX, int startY, int dir = none, double size = 1.0, bool canBeAttacked = true)
-        : GraphObject(imageID, startX, startY, dir, size), m_world(world), m_canBeAttacked(canBeAttacked), m_isAlive(true) {}
+        : GraphObject(imageID, startX, startY, dir, size), m_world(world), m_isAlive(true) {
+        setCanBeAttacked(canBeAttacked);
+    }
     
     virtual void doSomething() = 0;  // pure virtual
     
@@ -29,10 +31,11 @@ public:
     virtual ~Actor() {} 
 
 protected:
-    bool m_canBeAttacked;
+    void setCanBeAttacked(bool canBeAttacked) { m_canBeAttacked = canBeAttacked; }
 
 private:
     StudentWorld* m_world;
+    bool m_canBeAttacked;
     bool m_isAlive;
 };
 
@@ -40,7 +43,9 @@ private:
 class Floor : public Actor {
 public:
     Floor(StudentWorld* world, int startX, int startY)
-        : Actor(world, IID_FLOOR, startX, startY, none, 1.0, false) {}  // floor can't be attacked
+        : Actor(world, IID_FLOOR, startX, startY, none, 1.0) {
+        setCanBeAttacked(false);
+    }
     
     virtual void doSomething() override {}  // floor doesn't do anything each tick
 };
@@ -49,13 +54,10 @@ public:
 class Player : public Actor {
 public:
     Player(StudentWorld* world, int startX, int startY)
-        : Actor(world, IID_PLAYER, startX, startY, right), m_isAlive(true), 
-          m_isJumping(false), m_jumpStep(0), m_burpCount(0), m_isFrozen(false), m_frozenTicks(0) {}
+        : Actor(world, IID_PLAYER, startX, startY, right), m_isJumping(false), m_jumpStep(0), m_burpCount(0), m_isFrozen(false), m_frozenTicks(0) {}
     
     virtual void doSomething() override;
     
-    bool isAlive() const { return m_isAlive; }
-    void setDead() { m_isAlive = false; }
     virtual void attack() override;
     
     int getBurpCount() const { return m_burpCount; }
@@ -63,14 +65,12 @@ public:
     void decrementBurpCount() { if (m_burpCount > 0) m_burpCount--; }
     void addBurp() { m_burpCount++; }
     
-    bool isFrozen() const { return m_isFrozen; }
     void setFrozen(bool frozen) { 
         m_isFrozen = frozen; 
         if (frozen) m_frozenTicks = FROZEN_DURATION; 
     }
     
 private:
-    bool m_isAlive;
     bool m_isJumping;
     int m_jumpStep;
     int m_burpCount;
@@ -80,7 +80,6 @@ private:
     void executeJumpStep();
     bool canInitiateJump() const;
     void handleKeyPress();
-    void handleFalling();
     void handleBurp();
 };
 
@@ -88,7 +87,9 @@ private:
 class Ladder : public Actor {
 public:
     Ladder(StudentWorld* world, int startX, int startY)
-        : Actor(world, IID_LADDER, startX, startY, none, 1.0, false) {}  // ladder can't be attacked
+        : Actor(world, IID_LADDER, startX, startY, none, 1.0) {
+        setCanBeAttacked(false);
+    }
     
     virtual void doSomething() override {}  // ladder is static, doesn't do anything each tick
 };
@@ -97,7 +98,9 @@ public:
 class Burp : public Actor {
 public:
     Burp(StudentWorld* world, int startX, int startY, int dir)
-        : Actor(world, IID_BURP, startX, startY, dir), m_lifetime(BURP_LIFETIME) {}
+        : Actor(world, IID_BURP, startX, startY, dir), m_lifetime(BURP_LIFETIME) {
+        setCanBeAttacked(false);
+    }
     
     virtual void doSomething() override;
     virtual void attack() override {} // Burp can't be attacked
@@ -145,7 +148,9 @@ protected:
 class Enemy : public Actor {
 public:
     Enemy(StudentWorld* world, int imageID, int startX, int startY, int dir = none, double size = 1.0, bool canBeAttacked = false)
-        : Actor(world, imageID, startX, startY, dir, size, canBeAttacked) {}
+        : Actor(world, imageID, startX, startY, dir, size) {
+        setCanBeAttacked(canBeAttacked);
+    }
     virtual void doSomething() override;
     virtual void attack() override;  // base implementation for attack
     

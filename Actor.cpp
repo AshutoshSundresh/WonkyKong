@@ -417,7 +417,10 @@ void Fireball::doSomething() {
     if (!isAlive())
         return;
     
-    // collision is handled here for this impl
+    // Check for collision with player first
+    checkAndHandlePlayerCollision();
+    
+    // Then do fireball specific movement
     doEnemySpecificAction();
 }
 
