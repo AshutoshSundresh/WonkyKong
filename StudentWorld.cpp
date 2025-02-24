@@ -128,7 +128,7 @@ void StudentWorld::cleanUp()
 bool StudentWorld::isBlockedByFloor(int x, int y) const {
     // check each actor to see if there's a floor at the specified position
     for (Actor* actor : m_actors) {
-        if (actor != nullptr && dynamic_cast<Floor*>(actor) != nullptr) {
+        if (actor != nullptr && actor->blocksMovement()) {
             if (actor->getX() == x && actor->getY() == y)
                 return true;
         }
@@ -139,19 +139,8 @@ bool StudentWorld::isBlockedByFloor(int x, int y) const {
 bool StudentWorld::isOnLadder(int x, int y) const {
     // check each actor to see if there's a ladder at the specified position
     for (Actor* actor : m_actors) {
-        if (actor != nullptr && dynamic_cast<Ladder*>(actor) != nullptr) {
+        if (actor != nullptr && actor->isClimbable()) {
             if (actor->getX() == x && actor->getY() == y)
-                return true;
-        }
-    }
-    return false;
-}
-
-bool StudentWorld::isBonfireAt(int x, int y) const {
-    for (Actor* actor : m_actors) {
-        if (actor->getX() == x && actor->getY() == y) {
-            Bonfire* bonfire = dynamic_cast<Bonfire*>(actor);
-            if (bonfire != nullptr)
                 return true;
         }
     }
@@ -174,11 +163,22 @@ void StudentWorld::setDisplayText()
     setGameStatText(oss.str());
 }
 
+// impl for burp
 void StudentWorld::attackNonPlayerActorsAt(int x, int y) {
     // attack all actors at the given location, excluding the player
     for (Actor* actor : m_actors) {
         if (actor->getX() == x && actor->getY() == y && actor->canBeAttacked() && actor != m_player) {
             actor->attack();
+        }
+    }
+}
+
+// impl for bonfire
+void StudentWorld::attackBarrelsAt(int x, int y) {
+    // attack only barrels at the given location
+    for (Actor* actor : m_actors) {
+        if (actor->getX() == x && actor->getY() == y && actor->isBarrel()) {
+            actor->setDead();
         }
     }
 }

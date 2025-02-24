@@ -30,7 +30,7 @@ public:
 
     void getPlayerLocation(int& x, int& y) const { x = m_player->getX(); y = m_player->getY(); }
     void attackPlayer() { m_player->attack(); }
-    bool isBonfireAt(int x, int y) const;  
+    void attackBarrelsAt(int x, int y);  // attacks only barrels at the given position
     void levelComplete() { m_levelComplete = true; }
     bool isLevelComplete() const { return m_levelComplete; }
 

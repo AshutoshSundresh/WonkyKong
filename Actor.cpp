@@ -221,6 +221,9 @@ void Enemy::attack() {
 
 void Bonfire::doEnemySpecificAction() {
     increaseAnimationNumber();  // animate the flames
+    
+    // Check for and destroy any barrels at the same position
+    getWorld()->attackBarrelsAt(getX(), getY());
 }
 
 // koopa can die unlike the base enemy doSomething, it also does not kill the player
@@ -415,11 +418,6 @@ void Fireball::onAttackBonus() {
 }
 
 void Barrel::doEnemySpecificAction() {
-    if (getWorld()->isBonfireAt(getX(), getY())) {
-        setDead();
-        return;
-    }
-
     // check if there's no floor beneath
     if (!getWorld()->isBlockedByFloor(getX(), getY() - 1)) {
         moveTo(getX(), getY() - 1);

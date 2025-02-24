@@ -28,6 +28,11 @@ public:
     bool isAlive() const { return m_isAlive; }
     void setDead() { m_isAlive = false; }
     
+    // Behavior-based virtual methods
+    virtual bool blocksMovement() const { return false; }
+    virtual bool isClimbable() const { return false; }
+    virtual bool isBarrel() const { return false; }
+    
     virtual ~Actor() {} 
 
 protected:
@@ -48,6 +53,7 @@ public:
     }
     
     virtual void doSomething() override {}  // floor doesn't do anything each tick
+    virtual bool blocksMovement() const override { return true; }
 };
 
 // represents the player character
@@ -92,6 +98,7 @@ public:
     }
     
     virtual void doSomething() override {}  // ladder is static, doesn't do anything each tick
+    virtual bool isClimbable() const override { return true; }
 };
 
 // represents a burp attack
@@ -213,6 +220,8 @@ public:
     Barrel(StudentWorld* world, int startX, int startY, int dir)
         : Enemy(world, IID_BARREL, startX, startY, dir, 1.0, true), m_tickCount(0) {}
     
+    virtual bool isBarrel() const override { return true; }
+
 protected:
     virtual void doEnemySpecificAction() override;
 
