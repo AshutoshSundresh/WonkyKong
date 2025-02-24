@@ -177,7 +177,7 @@ public:
         : Enemy(world, IID_KOOPA, startX, startY, (randInt(0, 1) == 0) ? left : right, 1.0, true), m_freezeCooldown(0), m_moveCounter(0) {}
     
     virtual void doSomething() override;  // Override base doSomething for freeze implementation
-    
+
 protected:
     virtual void onAttackBonus() override;
     virtual void doEnemySpecificAction() override;
@@ -194,8 +194,6 @@ public:
         : Enemy(world, IID_FIREBALL, startX, startY, (randInt(0, 1) == 0) ? left : right, 1.0, true),
           m_climbingUp(false), m_climbingDown(false), m_justGotOffLadder(false), m_tickCount(0) {}
         
-    virtual void doSomething() override;  // skip base class collision check
-
 protected:
     virtual void onAttackBonus() override;
     virtual void doEnemySpecificAction() override;
@@ -215,8 +213,6 @@ public:
     Barrel(StudentWorld* world, int startX, int startY, int dir)
         : Enemy(world, IID_BARREL, startX, startY, dir, 1.0, true), m_tickCount(0) {}
     
-    virtual void doSomething() override;  // skip base class collision check
-        
 protected:
     virtual void doEnemySpecificAction() override;
 
@@ -232,7 +228,7 @@ public:
           m_isFleeing(false), m_ticksSinceLastBarrel(0), m_tickCount(0) {}
           
     virtual void doSomething() override;
-
+      
 protected:
     virtual void doEnemySpecificAction() override {}
 

@@ -196,15 +196,10 @@ void ExtraLifeGoodie::doGoodieSpecificAction() {
 }
 
 void Enemy::doSomething() {
+    if (!isAlive())
+        return;
+    checkAndHandlePlayerCollision();
     doEnemySpecificAction();
-    
-    // Check for collision with player and handle death
-    if (getWorld()->isPlayerAt(getX(), getY())) {
-        getWorld()->decLives();  
-        getWorld()->playSound(SOUND_PLAYER_DIE);  
-        getWorld()->getPlayer()->setDead();  
-        return; 
-    }
 }
 
 void Enemy::checkAndHandlePlayerCollision() {
@@ -413,33 +408,13 @@ void Fireball::doEnemySpecificAction() {
     m_tickCount = 0;
 }
 
-void Fireball::doSomething() {
-    if (!isAlive())
-        return;
-    
-    // Check for collision with player first
-    checkAndHandlePlayerCollision();
-    
-    // Then do fireball specific movement
-    doEnemySpecificAction();
-}
-
 void Fireball::onAttackBonus() {
     if (randInt(1, 3) == 1) {
         getWorld()->addActor(new GarlicGoodie(getWorld(), getX(), getY()));
     }
 }
 
-void Barrel::doSomething() {
-    if (!isAlive())
-        return;
-    
-    // collision is handled here for this impl
-    doEnemySpecificAction();
-}
-
 void Barrel::doEnemySpecificAction() {
-    checkAndHandlePlayerCollision();
     if (getWorld()->isBonfireAt(getX(), getY())) {
         setDead();
         return;
