@@ -210,6 +210,9 @@ private:
     bool m_climbingDown;
     bool m_justGotOffLadder;
     int m_tickCount;
+    bool handleClimbing(bool isClimbingUp, bool& climbingFlag);
+    bool tryClimbing();
+    void handleClimbingEnd(bool& climbingFlag);
     
     int getXMod() const { return getDirection() == right ? 1 : -1; }
 };
