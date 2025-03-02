@@ -421,14 +421,20 @@ void Barrel::doEnemySpecificAction() {
     // check if there's no floor beneath
     if (!getWorld()->isBlockedByFloor(getX(), getY() - 1)) {
         moveTo(getX(), getY() - 1);
-        
-        // just landed on floor, reverse direction
-        if (getWorld()->isBlockedByFloor(getX(), getY() - 1)) {
+
+        // flip direction only once when starting to fall
+        if (!m_hasFlipped) {
             setDirection(getDirection() == right ? left : right);
+            m_hasFlipped = true;
         }
         return;
     }
-
+    
+    // reset flip flag when barrel is on floor
+    if (getWorld()->isBlockedByFloor(getX(), getY() - 1)) {
+        m_hasFlipped = false;
+    }
+    
     m_tickCount++;
     if (m_tickCount >= 10) {
         m_tickCount = 0;

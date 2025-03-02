@@ -5,8 +5,7 @@
 #include <iomanip> // added for setw and setfill
 using namespace std;
 
-GameWorld* createStudentWorld(string assetPath)
-{
+GameWorld* createStudentWorld(string assetPath) {
     return new StudentWorld(assetPath);
 }
 
@@ -21,8 +20,7 @@ StudentWorld::~StudentWorld() {
     cleanUp();
 }
 
-int StudentWorld::init()
-{
+int StudentWorld::init() {
     m_levelComplete = false;
 
     // load the current level
@@ -80,8 +78,7 @@ int StudentWorld::init()
     return GWSTATUS_CONTINUE_GAME;
 }
 
-int StudentWorld::move()
-{
+int StudentWorld::move() {
     setDisplayText();
     
     for (Actor* actor : m_actors) {
@@ -111,8 +108,7 @@ int StudentWorld::move()
     return GWSTATUS_CONTINUE_GAME;
 }
 
-void StudentWorld::cleanUp()
-{
+void StudentWorld::cleanUp() {
     if (m_actors.size() == 0 && m_player == nullptr) {
         return;
     }
@@ -151,8 +147,7 @@ void StudentWorld::playSound(int soundId) {
     GameWorld::playSound(soundId);
 }
 
-void StudentWorld::setDisplayText()
-{
+void StudentWorld::setDisplayText() {
     // Format: Score: 0000100 Level: 03 Lives: 03 Burps: 08 from spec
     ostringstream oss;
     oss << "Score: " << setw(7) << setfill('0') << getScore()

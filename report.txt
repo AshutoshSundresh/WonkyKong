@@ -1,0 +1,35 @@
+Report: Wonky Kong
+
+1.
+
+The co-location of the player and a goodie is detected in the doSomething() method of the Goodie class. This check happens immediately after the goodie is checked for whether it is alive, if the  The doSomething() method of the Goodie class checks if the Player's coordinates match the goodie's coordinates. This is done using the getX() and getY() methods.
+
+Each Actor (including Goodies) has a reference to StudentWorld through m_world.
+Case when there is a co-location of a goodie and a player: 
+	This method is overridden by each subclass of Goodie (doGoodieSpecificAction()) to implement the specific behavior of the goodie. For example, the Garlic class's doGoodieSpecificAction() method adds 5 burps to the Player class. The doGoodieSpecificAction() ensures that the code is streamlined and that nothing is repeated.
+	The required sound effect for collecting goodies is played along with this using the function playSound() which is a redefinition of the Gameworld::playSound(). 
+	The score increase is performed using the function increaseScore() and the helper function getScoreIncrease() which is defined with a value for each subclass of Goodie.
+	After triggering the effect, the goodie is marked for deletion from the game world using the setDead() method. There is no sound effect played in this specific case. 
+
+
+2. I have not failed to implement any of the features. I started the project by reading the spec and then playing the sample game for over 3 hours and there are no differences at all between the way my implementation functions and the way the sample game works.
+
+3.
+
+The specification for the Kong sequence wasn't specific about what going off the screen means. In the sample game, the Kong always goes 1 space off the ladder so that is exactly how I implemented it.
+I don't think the spec was extremely clear about what happens to the fireball when it goes off the ladder (3.c. kind of explains it but it doesn't tell me what the effect of that is). After the fireball gets off a ladder, it continues horizontally in the same direction and will never try to go back down immediately (the 1/3 check doesn't happen again). 
+I also initially implemented the barrel flip logic such that the barrel flips when it hits the ground. This visually looks and performs exactly the same with the original Assets, but the different is very noticeable with the Nachenberg asset so I made sure it works exactly like how the spec states it (flips after the barrel moves at least one step down).
+
+Abstraction:
+The base class abstraction is Actor.
+It inherits from GraphObject for visual representation. It uses pure virtual doSomething() method to enforce behavior implementation in derived classes. It provides common functionality like life status, world pointer, and attack capability. It uses virtual methods for behavior-based properties (blocksMovement(), isClimbable(), isBarrel())
+Also, there's the Enemy base class that encapsulates common enemy behaviors with subclasses (Koopa, Fireball, Bonfire, Kong) with specific behaviors that are implemented using the function doEnemySpecificAction(). I also used private member variables for all the classes with protected/public accessor methods for best OOP practices. I used protected methods for derived class functionality.
+
+
+
+
+
+
+
+
+

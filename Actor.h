@@ -218,7 +218,7 @@ private:
 class Barrel : public Enemy {
 public:
     Barrel(StudentWorld* world, int startX, int startY, int dir)
-        : Enemy(world, IID_BARREL, startX, startY, dir, 1.0, true), m_tickCount(0) {}
+        : Enemy(world, IID_BARREL, startX, startY, dir, 1.0, true), m_tickCount(0), m_hasFlipped(false) {}
     
     virtual bool isBarrel() const override { return true; }
 
@@ -226,7 +226,8 @@ protected:
     virtual void doEnemySpecificAction() override;
 
 private:
-    int m_tickCount;  
+    int m_tickCount;
+    bool m_hasFlipped;
 };
 
 // represents Kong, who throws barrels and flees when player gets close
