@@ -17,8 +17,10 @@ Case when there is a co-location of a goodie and a player:
 3.
 
 The specification for the Kong sequence wasn't specific about what going off the screen means. In the sample game, the Kong always goes 1 space off the ladder so that is exactly how I implemented it.
-I don't think the spec was extremely clear about what happens to the fireball when it goes off the ladder (3.c. kind of explains it but it doesn't tell me what the effect of that is). After the fireball gets off a ladder, it continues horizontally in the same direction and will never try to go back down immediately (the 1/3 check doesn't happen again). 
 I also initially implemented the barrel flip logic such that the barrel flips when it hits the ground. This visually looks and performs exactly the same with the original Assets, but the different is very noticeable with the Nachenberg asset so I made sure it works exactly like how the spec states it (flips after the barrel moves at least one step down).
+
+The most complicated actor to implement was fireball: 
+I created functions to handle one specific aspect of movement behavior. The handleClimbing function manages ongoing climbing, tryClimbing handles potential new climbing opportunities, and handleClimbingEnd deals with ladder exit behavior. The functions use early returns to handle special cases first, making the code flow more logical and easier to follow. I also use movement flags (m_climbingUp, m_climbingDown, m_justGotOffLadder) which are managed consistently throughout the functions, making the state transitions more predictable.
 
 Abstraction:
 The base class abstraction is Actor.

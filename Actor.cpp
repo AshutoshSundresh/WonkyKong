@@ -44,7 +44,7 @@ void Player::executeJumpStep() {
         case 1:  // Move in facing direction
         case 2:
         case 3:
-            targetX += (getDirection() == right ? 1 : -1);
+            targetX += getXMod();
             break;
         case 4:  // Move down
             targetY--;
@@ -138,7 +138,7 @@ void Player::handleBurp() {
         return;
         
     // create burp in front of player
-    int burpX = getX() + (getDirection() == right ? 1 : -1);
+    int burpX = getX() + getXMod();
     int burpY = getY();
     
     // play burp sound
@@ -252,7 +252,7 @@ void Koopa::doSomething() {
 void Koopa::doEnemySpecificAction() {
     // handle Koopa's movement here
     // Determine target position based on direction
-    int targetX = getX() + (getDirection() == right ? 1 : -1);
+    int targetX = getX() + getXMod();
     
     // check if movement is valid
     bool hasFloorAhead = getWorld()->isBlockedByFloor(targetX, getY());
@@ -419,7 +419,7 @@ void Barrel::doEnemySpecificAction() {
         m_tickCount = 0;
 
         // calculate target position based on current direction
-        int targetX = getX() + (getDirection() == right ? 1 : -1);
+        int targetX = getX() + getXMod();
 
         // blocked by floor in front, reverse direction
         if (getWorld()->isBlockedByFloor(targetX, getY())) {
@@ -459,7 +459,7 @@ void Kong::doSomething() {
         if (m_ticksSinceLastBarrel >= getBarrelThrowInterval()) {
             m_ticksSinceLastBarrel = 0;
             
-            int barrelX = getX() + (getDirection() == right ? 1 : -1);
+            int barrelX = getX() + getXMod();
             getWorld()->addActor(new Barrel(getWorld(), barrelX, getY(), getDirection()));
         }
     }

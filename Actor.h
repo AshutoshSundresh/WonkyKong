@@ -21,6 +21,8 @@ public:
     
     virtual void doSomething() = 0;  // pure virtual
     
+    int getXMod() const { return getDirection() == right ? 1 : -1; }
+
     StudentWorld* getWorld() const { return m_world; }
     bool canBeAttacked() const { return m_canBeAttacked; }
     virtual void attack() {} // Default implementation does nothing
@@ -32,7 +34,6 @@ public:
     virtual bool blocksMovement() const { return false; }
     virtual bool isClimbable() const { return false; }
     virtual bool isBarrel() const { return false; }
-    
     virtual ~Actor() {} 
 
 protected:
@@ -213,8 +214,6 @@ private:
     bool handleClimbing(bool isClimbingUp, bool& climbingFlag);
     bool tryClimbing();
     void handleClimbingEnd(bool& climbingFlag);
-    
-    int getXMod() const { return getDirection() == right ? 1 : -1; }
 };
 
 // represents a rolling barrel that can attack the player
