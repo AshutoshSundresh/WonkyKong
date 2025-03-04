@@ -17,7 +17,9 @@ Case when there is a co-location of a goodie and a player:
 3.
 
 The specification for the Kong sequence wasn't specific about what going off the screen means. In the sample game, the Kong always goes 1 space off the ladder so that is exactly how I implemented it.
-I also initially implemented the barrel flip logic such that the barrel flips when it hits the ground. This visually looks and performs exactly the same with the original Assets, but the different is very noticeable with the Nachenberg asset so I made sure it works exactly like how the spec states it (flips after the barrel moves at least one step down).
+I also initially implemented the barrel flip logic such that the barrel flips when it hits the ground (spec page 36, 4.). This visually looks and performs exactly the same with the original Assets, but the different is very noticeable with the Nachenberg asset so I made sure it works exactly like how the sample game plays it (flips after the barrel moves at least one step down, spec page 5). The spec has conflicting information on this.
+The spec clearly stated that the barrel needs to be thrown immediately adjacent to the Kong (page 37). This has been implemently differently in the sample where it is tossed at the 2nd coordinate from the kong. I've implemented it how the sample does (I assume the sample takes higher priority over the spec for these decisions).
+
 
 The most complicated actor to implement was fireball: 
 I created functions to handle one specific aspect of movement behavior. The handleClimbing function manages ongoing climbing, tryClimbing handles potential new climbing opportunities, and handleClimbingEnd deals with ladder exit behavior. The functions use early returns to handle special cases first, making the code flow more logical and easier to follow. I also use movement flags (m_climbingUp, m_climbingDown, m_justGotOffLadder) which are managed consistently throughout the functions, making the state transitions more predictable.

@@ -459,7 +459,7 @@ void Kong::doSomething() {
         if (m_ticksSinceLastBarrel >= getBarrelThrowInterval()) {
             m_ticksSinceLastBarrel = 0;
             
-            int barrelX = getX() + getXMod();
+            int barrelX = getX() + (2 * getXMod());
             getWorld()->addActor(new Barrel(getWorld(), barrelX, getY(), getDirection()));
         }
     }
